@@ -1,0 +1,35 @@
+.f-border(@direction){
+	border-@{direction}: 1px solid @color-border;
+}
+
+.f-font-smooth() {
+	font-smooth: always;
+	-webkit-font-smoothing: subpixel-antialiased;
+}
+
+.f-recolor(@color) {
+	@hue: hue(@color);
+	@saturation: saturation(@color);
+	@lightness: lightness(@color);
+			
+	.filter( invert(100%) sepia(3%) brightness( unit( @lightness, % ) ) saturate( unit( @saturation * 1000, % ) ) hue-rotate( unit( @hue - 65, deg ) ) );
+}
+
+.fullscreen-form() {
+	box-sizing: border-box;
+	width: @width-form;
+	padding: 20px 0;
+	margin: 0 auto;
+	min-height: 100vh;
+	height: auto;
+	.flex-block();
+	.flex-direction(column);
+	.justify-content(center);
+}
+
+
+.vertical-scroll() {
+	overflow: hidden;
+	overflow-y: scroll;
+	scroll-behavior: smooth;
+}

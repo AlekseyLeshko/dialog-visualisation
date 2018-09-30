@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>search</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="search" stroke="#000000" stroke-width="1.7">
+            <path d="M17,17 L11.2121429,11.2121429 C10.1567857,12.2664286 8.88392857,12.7935714 7.39357143,12.7935714 C5.90642857,12.7935714 4.63892857,12.2664286 3.58892857,11.2121429 C2.53464286,10.1567857 2.00428571,8.88607143 2,7.4 C2,5.90964286 2.52714286,4.63678571 3.5825,3.5825 C4.63678571,2.52714286 5.90642857,2 7.39357143,2 C8.88392857,2.00428571 10.1567857,2.53464286 11.2121429,3.58892857 C12.2610714,4.64321429 12.7860714,5.91178571 12.7860714,7.39357143 C12.7871429,7.8575 12.7378571,8.30107143 12.6392857,8.72321429" id="lupa"></path>
+        </g>
+    </g>
+</svg>

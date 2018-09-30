@@ -1,0 +1,31 @@
+@import 'font.less';
+@import 'variables.less';
+@import 'prefixer.less';
+@import 'functions.less';
+@import 'loading-spinner.less';
+@import 'animations.less';
+
+body {
+
+		font-family: Roboto, Noto Sans, -apple-system, BlinkMacSystemFont, sans-serif;
+		font-size: @font-size-main;
+
+	}
+
+:root {
+		--color-background: @color-background;
+		--color-white: @color-white;
+		--color-black: @color-black;
+		--color-border: @color-border;
+		--color-gray-font: @color-gray-font;
+		--color-active: @color-active;
+		--color-hover: @color-hover;
+		--color-border-active: @color-border-active;
+		--color-border-hover: @color-border-hover;
+		--color-error: @color-error;
+		--logo-color-main: @color-active;
+		--logo-color-main-tint: darken(@color-active, 20%);
+		--logo-color-font: @color-black;
+		--logo-color-second: @color-white;
+		--logo-color-second-tint: darken(@color-white, 20%);
+	}

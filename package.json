@@ -1,0 +1,54 @@
+{
+  "name": "dialog-visualisation",
+  "description": "Chats dialog visualisation",
+  "version": "1.0.0",
+  "author": "EVERYDAYHERO2000 <ilyaflare@gmail.com>",
+  "homepage": "https://github.com/EVERYDAYHERO2000/dialog-visualisation",
+  "repository": "https://github.com/EVERYDAYHERO2000/dialog-visualisation",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "styleguide": "vue-styleguidist server",
+    "styleguide:build": "vue-styleguidist build"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "intl": "^1.2.5",
+    "jquery": "^3.3.1",
+    "lodash": "^4.17.10",
+    "vue": "^2.5.11",
+    "vue-split-panel": "^1.0.4",
+		"markdown": "^0.5.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "cross-env": "^5.0.5",
+    "css-loader": "^0.28.7",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.4",
+    "less": "^3.0.4",
+    "less-loader": "^4.1.0",
+    "node-sass": "^4.5.3",
+    "normalize.css": "^8.0.0",
+    "platform": "^1.3.5",
+    "sass-loader": "^6.0.6",
+    "uglifyjs-webpack-plugin": "^1.2.5",
+    "vue-loader": "^13.0.5",
+    "vue-styleguidist": "^1.8.4",
+    "vue-template-compiler": "^2.4.4",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1"
+  }
+}

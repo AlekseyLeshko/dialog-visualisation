@@ -1,0 +1,37 @@
+		@keyframes form-bounce {
+			0% {
+				transform: translate(0px);
+			}
+			25% {
+				transform: translateX(-35px);
+			}
+			50% {
+				transform: translateX(25px);
+			}
+			75% {
+				transform: translateX(-15px);
+			}
+			100% {
+				transform: translateX(0px);
+			}
+		}
+
+		@keyframes app-states_show {
+			0% {
+				opacity: 0;
+			}
+			100% {
+				opacity: 1;
+			}
+		}
+
+		@keyframes show-menu {
+			0% {
+				transform:scale(0.95);
+				box-shadow: 0 0 2px rgba(0,0,0,0.05);
+			}
+			100% {
+				transform:scale(1);
+				box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+			}
+}

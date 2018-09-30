@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="44px" viewBox="0 0 22 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>show-hide</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="show-hide" fill="#000000">
+            <g id="visibility" transform="translate(0.000000, 3.000000)">
+                <path d="M11,0.5 C6,0.5 1.7,3.6 0,8 C1.7,12.4 6,15.5 11,15.5 C16,15.5 20.3,12.4 22,8 C20.3,3.6 16,0.5 11,0.5 L11,0.5 Z M11,13 C8.2,13 6,10.8 6,8 C6,5.2 8.2,3 11,3 C13.8,3 16,5.2 16,8 C16,10.8 13.8,13 11,13 L11,13 Z M11,5 C9.3,5 8,6.3 8,8 C8,9.7 9.3,11 11,11 C12.7,11 14,9.7 14,8 C14,6.3 12.7,5 11,5 L11,5 Z" id="Shape"></path>
+            </g>
+            <g id="visibility-off-copy" transform="translate(0.000000, 24.000000)">
+                <path d="M11,4 C13.8,4 16,6.2 16,9 C16,9.6 15.9,10.3 15.6,10.8 L18.5,13.7 C20,12.4 21.2,10.8 21.9,9 C20.2,4.6 15.9,1.5 10.9,1.5 C9.5,1.5 8.2,1.8 6.9,2.2 L9.1,4.4 C9.7,4.1 10.4,4 11,4 L11,4 Z M1,1.3 L3.3,3.6 L3.7,4 C2,5.3 0.7,7 0,9 C1.7,13.4 6,16.5 11,16.5 C12.5,16.5 14,16.2 15.4,15.7 L15.8,16.1 L18.7,19 L20,17.7 L2.3,0 L1,1.3 L1,1.3 Z M6.5,6.8 L8,8.3 L8,9 C8,10.7 9.3,12 11,12 C11.2,12 11.4,12 11.7,11.9 L13.2,13.4 C12.5,13.8 11.8,14 11,14 C8.2,14 6,11.8 6,9 C6,8.2 6.2,7.5 6.5,6.8 L6.5,6.8 Z M10.8,6 L13.9,9.1 L13.9,8.9 C13.9,7.2 12.6,5.9 10.9,5.9 C10.9,6 10.9,6 10.8,6 L10.8,6 Z" id="Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>
