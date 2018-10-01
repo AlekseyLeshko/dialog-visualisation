@@ -1,7 +1,25 @@
 <template>
 	<div class="app">
 		
-	
+		<tree 
+					ref="tree"
+					v-bind:data="tree" 
+					v-bind:type="treeType" 
+					v-bind:node-text="'name'" 
+					v-bind:radius="6"
+					v-bind:duration="300"
+					v-bind:zoomable="true"
+					v-bind:fontSize="13"
+					v-on:clicked="currentNode"
+					v-bind:layoutType="'euclidean'"> 
+		</tree>
+		
+		<div class="tools">
+			<checkbox 
+				v-bind:label="'Cluster view'"
+				v-on:onActive="changeType"></checkbox>
+		</div>
+		
 	</div>
 </template>
 
@@ -11,7 +29,8 @@
  	*/
 	import platform from 'platform';
 
-	
+	import tree from '../src/components/tree/Tree.vue';
+	import checkbox from '../src/components/checkbox/checkbox.vue';
 
 	/**
  	* Контейнер приложения
@@ -19,13 +38,26 @@
 	export default {
 		name: 'app',
 		components: {
-
+			tree,
+			checkbox
 		},
 		data: function() {
-			return {}
+			return {
+				tree: window.ddd,
+				treeType: 'tree' 
+			}
 		},
 		methods: {
-			
+			currentNode : function(n){
+				console.log(n)
+			},
+			changeType : function(e){
+				if (e == true){
+					this.treeType = 'tree';
+				} else {
+					this.treeType = 'cluster';
+				}
+			}
 		},
 		created: function() {
 			window.APP = this;
@@ -87,6 +119,10 @@
 		height: 100vh;
 		z-index: 100;
 	}
+	
+	.viewport {
+		height: 100vh;
+	}
 
 	#loading {
 		width: 100%;
@@ -117,5 +153,12 @@
 			width: 100%;
 			height: 100%;
 		}
+	}
+	
+	.tools {
+		position: fixed;
+		top:0;
+		right: 0;
+		margin: 0 20px;
 	}
 </style>

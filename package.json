@@ -18,9 +18,10 @@
     "intl": "^1.2.5",
     "jquery": "^3.3.1",
     "lodash": "^4.17.10",
+    "markdown": "^0.5.0",
     "vue": "^2.5.11",
     "vue-split-panel": "^1.0.4",
-		"markdown": "^0.5.0"
+    "vued3tree": "^3.6.4"
   },
   "browserslist": [
     "> 1%",
