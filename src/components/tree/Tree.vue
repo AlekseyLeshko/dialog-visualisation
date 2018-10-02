@@ -231,6 +231,11 @@ export default {
 
 			
       updateLinks.attr('d', d => drawLink(originBuilder(d), originBuilder(d), this.layout))
+				.classed('type_t', d => d.data.circle === 'T' )
+				.classed('type_l', d => d.data.circle === 'L' )
+				.classed('type_s', d => d.data.circle === 'S' )
+				.classed('type_w', d => d.data.circle === 'W' )
+				.classed('type_d', d => d.data.circle === 'D' )
 
       const updateAndNewLinks = links.merge(updateLinks)
       const updateAndNewLinksPromise = toPromise(updateAndNewLinks.transition().duration(this.duration)
@@ -590,6 +595,22 @@ export default {
 .treeclass {
   max-height: 100%;
 }
+	
+	.treeclass .linktree.type_t {
+		stroke: @color-t;
+	}	
+	.treeclass .linktree.type_w {
+		stroke: @color-w;
+	}	
+	.treeclass .linktree.type_l {
+		stroke: @color-l;
+	}	
+	.treeclass .linktree.type_s {
+		stroke: @color-s;
+	}	
+	.treeclass .linktree.type_d {
+		stroke: @color-d;
+	}	
 
 .treeclass .nodetree.type_t circle {
 		fill: lighten(@color-t, 40%);
