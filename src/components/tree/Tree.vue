@@ -1,8 +1,15 @@
 <template>
-  <div class="viewport treeclass" v-resize="resize">
+
+  <div 
+  	class="viewport treeclass" 
+  	v-resize="resize">
   </div>
+
 </template>
+
+
 <script>
+	
 import resize from 'vue-resize-directive'
 import euclidean from './euclidean-layout'
 import circular from './circular-layout'
@@ -75,19 +82,19 @@ const directives = {
 }
 
 function hasChildren (d) {
-  return d.children || d._children
+  return d.children || d._children;
 }
 
 function getChildren (d) {
-  return d.children ? {children: d.children, visible: true} : (d._children ? {children: d._children, visible: false} : null)
+  return d.children ? {children: d.children, visible: true} : (d._children ? {children: d._children, visible: false} : null);
 }
 
 function onAllChilddren (d, callback, fatherVisible = undefined) {
   if (callback(d, fatherVisible) === false) {
-    return
+    return;
   }
-  var directChildren = getChildren(d)
-  directChildren && directChildren.children.forEach(child => onAllChilddren(child, callback, directChildren.visible))
+  var directChildren = getChildren(d);
+  directChildren && directChildren.children.forEach(child => onAllChilddren(child, callback, directChildren.visible));
 }
 
 export default {
@@ -113,122 +120,152 @@ export default {
 	},
 
   mounted () {
-    const size = this.getSize()
-    const svg = d3.select(this.$el).append('svg')
+    const size = this.getSize();
+    const svg = d3.select(this.$el)
+					.append('svg')
           .attr('width', size.width)
-          .attr('height', size.height)
-    let g = null
-    let zoom = null
+          .attr('height', size.height);
+		
+    let g = null,
+				zoom = null,
+				g_links = null;
 
     if (this.zoomable) {
-      g = svg.append('g')
-      zoom = d3.zoom().scaleExtent([0.9, 8]).on('zoom', this.zoomed(g))
-      svg.call(zoom).on('wheel', () => d3.event.preventDefault())
-      svg.call(zoom.transform, d3.zoomIdentity)
+      g = svg.append('g');
+      zoom = d3.zoom().scaleExtent([0.9, 8]).on('zoom', this.zoomed(g));
+      svg.call(zoom).on('wheel', () => d3.event.preventDefault());
+      svg.call(zoom.transform, d3.zoomIdentity);
     } else {
-      g = this.transformSvg(svg.append('g'), size)
+      g = this.transformSvg(svg.append('g'), size);
     }
+		
+		g_links = g.append('g').attr('class', 'links-group');
 
-    const tree = this.tree
+    const tree = this.tree;
     this.internaldata = {
       svg,
       g,
+			g_links,
       tree,
       zoom
     }
 
-    this.data && this.onData(this.data)
+    this.data && this.onData(this.data);
 		
 		this.collapseAll(this.internaldata.root);
   },
 
   methods: {
     getSize () {
-      var width = this.$el.clientWidth
-      var height = this.$el.clientHeight
-      return { width, height }
+      let width = this.$el.clientWidth,
+					height = this.$el.clientHeight;
+      return { width, height };
     },
 
     resize () {
       const size = this.getSize()
       this.internaldata.svg
               .attr('width', size.width)
-              .attr('height', size.height)
-      this.layout.size(this.internaldata.tree, size, this.margin, this.maxTextLenght)
-      this.applyZoom(size)
-      this.redraw()
+              .attr('height', size.height);
+      this.layout.size(this.internaldata.tree, size, this.margin, this.maxTextLenght);
+      this.applyZoom(size);
+      this.redraw();
     },
 
     completeRedraw ({margin = null, layout = null}) {
-      const size = this.getSize()
-      this.layout.size(this.internaldata.tree, size, this.margin, this.maxTextLenght)
-      this.applyTransition(size, {margin, layout})
-      this.redraw()
+      const size = this.getSize();
+      this.layout.size(this.internaldata.tree, size, this.margin, this.maxTextLenght);
+      this.applyTransition(size, {margin, layout});
+      this.redraw();
     },
 
     transformSvg (g, size) {
-      size = size || this.getSize()
-      return this.layout.transformSvg(g, this.margin, size, this.maxTextLenght)
+      size = size || this.getSize();
+      return this.layout.transformSvg(g, this.margin, size, this.maxTextLenght);
     },
 
     updateTransform (g, size) {
-      size = size || this.getSize()
-      return this.layout.updateTransform(g, this.margin, size, this.maxTextLenght)
+      size = size || this.getSize();
+      return this.layout.updateTransform(g, this.margin, size, this.maxTextLenght);
     },
 
     updateGraph (source) {
-      source = source || this.internaldata.root
-      let originBuilder = source
-      let forExit = source
-      const origin = {x: source.x0, y: source.y0}
+			
+      source = source || this.internaldata.root;
+      let originBuilder = source;
+      let forExit = source;
+      const origin = {
+				x: source.x0, 
+				y: source.y0
+			};
 
       if (arguments.length === 0) {
         originBuilder = d => {
           if (d.parent == null) {
-            return origin
+            return origin;
           }
           if (d.parent.x0 !== undefined) {
-            return {x: d.parent.x0, y: d.parent.y0}
+            return {x: d.parent.x0, y: d.parent.y0};
           }
           if (d.parent._x0 !== undefined) {
-            return {x: d.parent._x0, y: d.parent._y0}
+            return {x: d.parent._x0, y: d.parent._y0};
           }
-          return origin
+          return origin;
         }
-        forExit = d => ({x: source.x, y: source.y})
-        source = this.internaldata.root
+        forExit = d => ({x: source.x, y: source.y});
+        source = this.internaldata.root;
       } else if (typeof source === 'object') {
-        originBuilder = d => origin
-        forExit = d => ({x: source.x, y: source.y})
+        originBuilder = d => origin;
+        forExit = d => ({x: source.x, y: source.y});
       }
 
-      const root = this.internaldata.root
-      const links = this.internaldata.g.selectAll('.linktree')
-         .data(this.internaldata.tree(root).descendants().slice(1), d => d.id)
+      const root = this.internaldata.root;
+      const links = this.internaldata.g_links
+				.selectAll('.linktree')
+				.data(this.internaldata.tree(root).descendants().slice(1), d => d.id);
 
-      const updateLinks = links.enter().append('path').attr('class', 'linktree')
-      const nodes = this.internaldata.g.selectAll('.nodetree').data(root.descendants(), d => d.id)
-      const newNodes = nodes.enter().append('g').attr('class', 'nodetree')
-      const allNodes = newNodes.merge(nodes)
+      const updateLinks = links.enter()
+				.append('path')
+				.attr('class', 'linktree')
+				.attr('data-name', d => d.data.name + '_' + d.id);
+			
+      const nodes = this.internaldata.g
+				.selectAll('.nodetree')
+				.data(root.descendants(), d => d.id);
+			
+      const newNodes = nodes.enter()
+				.append('g')
+				.attr('class', 'nodetree')
+				.attr('data-name', d => d.data.name + '_' + d.id);
+			
+      const allNodes = newNodes.merge(nodes);
 
       nodes.each(function (d) {
         d._x0 = d.x
         d._y0 = d.y
-      })
+      });
 
       newNodes.append('text')
         .attr('dy', -10 / this.currentTransform.k)
         .attr('x', 0)
         .attr('dx', 0)
         .attr('transform', 'rotate(0)')
+				.attr('data-name', d => d.data.name)
 				.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' ) 
         .on('click', d => {
-          currentSelected = (currentSelected === d) ? null : d
-          d3.event.stopPropagation()
-          this.redraw()
-          this.$emit('clicked', {element: d, data: d.data})
+          currentSelected = (currentSelected === d) ? null : d;
+          d3.event.stopPropagation();
+          this.redraw();
+          this.$emit('clicked', {element: d, data: d.data});
         })
+				.on('mouseenter', d => {
+					currentSelected = (currentSelected === d) ? null : d;
+          //d3.event.stopPropagation();
+					this.$emit('mouseentered', {element: d, data: d.data});
+				});
 
+			
+			
 			
       updateLinks.attr('d', d => drawLink(originBuilder(d), originBuilder(d), this.layout))
 				.classed('type_t', d => d.data.circle === 'T' )
@@ -236,16 +273,18 @@ export default {
 				.classed('type_s', d => d.data.circle === 'S' )
 				.classed('type_w', d => d.data.circle === 'W' )
 				.classed('type_d', d => d.data.circle === 'D' )
-
-      const updateAndNewLinks = links.merge(updateLinks)
+				.classed('type_a', d => d.data.circle === 'A' )
+			
+      const updateAndNewLinks = links.merge(updateLinks);
+			
       const updateAndNewLinksPromise = toPromise(updateAndNewLinks.transition().duration(this.duration)
 						.attr('d', d => drawLink(d, d.parent, this.layout)));
 			
-      const exitingLinksPromise = toPromise(links.exit().transition().duration(this.duration).attr('d', d => drawLink(forExit(d), forExit(d), this.layout)).remove())
+      const exitingLinksPromise = toPromise(links.exit().transition().duration(this.duration).attr('d', d => drawLink(forExit(d), forExit(d), this.layout)).remove());
 
       newNodes.attr('transform', d => translate(originBuilder(d), this.layout))
         .append('circle')
-        .attr('r', this.radius / this.currentTransform.k )
+        .attr('r', this.radius / this.currentTransform.k );
 
       allNodes.classed('node--internal', d => hasChildren(d))
         .classed('node--leaf', d => !hasChildren(d))
@@ -255,73 +294,72 @@ export default {
 				.classed('type_s', d => d.data.circle === 'S' )
 				.classed('type_w', d => d.data.circle === 'W' )
 				.classed('type_d', d => d.data.circle === 'D' )
-        .on('click', this.onNodeClick)
+				.classed('type_a', d => d.data.circle === 'A' )
+        .on('click', this.onNodeClick);
 
       const allNodesPromise = toPromise(allNodes.transition().duration(this.duration)
         .attr('transform', d => translate(d, this.layout))
-        .attr('opacity', 1))
+        .attr('opacity', 1));
 
-      const text = allNodes.select('text').text(d => d.data[this.nodeText])
+      const text = allNodes.select('text').text(d => d.data[this.nodeText]);
 
       const {transformText} = this.layout
       allNodes.each((d,e) => {
         d.textInfo = transformText(d, hasChildren(d))
-				
       });
 			
 			
 
       const textTransition = toPromise(text.transition().duration(this.duration)
-          //.attr('x',d => d.textInfo.x)
-          //.attr('dx',function (d) { return anchorTodx(d.textInfo.anchor, this) })
-          .attr('transform', d => `rotate(${d.textInfo.rotate})`))
+          .attr('transform', d => `rotate(${d.textInfo.rotate})`));
 
       allNodes.each((d) => {
         d.x0 = d.x
         d.y0 = d.y
       })
 
-      const exitingNodes = nodes.exit()
+      const exitingNodes = nodes.exit();
       const exitingNodesPromise = toPromise(exitingNodes.transition().duration(this.duration)
                   .attr('transform', d => translate(forExit(d), this.layout))
-                  .attr('opacity', 0).remove())
-      exitingNodes.select('circle').attr('r', 1e-6)
+                  .attr('opacity', 0).remove());
+			
+      exitingNodes.select('circle').attr('r', 1e-6);
 
-      const leaves = root.leaves()
-      const extremeNodes = text.filter(d => leaves.indexOf(d) !== -1).nodes()
-      const last = Math.max(...extremeNodes.map(node => node.getComputedTextLength())) + 6
-      const first = text.node().getComputedTextLength() + 6
+      const leaves = root.leaves();
+      const extremeNodes = text.filter(d => leaves.indexOf(d) !== -1).nodes();
+      const last = Math.max(...extremeNodes.map(node => node.getComputedTextLength())) + 6;
+      const first = text.node().getComputedTextLength() + 6;
       if (last <= this.maxTextLenght.last && first <= this.maxTextLenght.first) {
-        return Promise.all([allNodesPromise, exitingNodesPromise, textTransition, updateAndNewLinksPromise, exitingLinksPromise])
+        return Promise.all([allNodesPromise, exitingNodesPromise, textTransition, updateAndNewLinksPromise, exitingLinksPromise]);
       }
 
       this.maxTextLenght = {first, last}
-      const size = this.getSize()
+      const size = this.getSize();
+			
       if (this.zoomable) {
-				
-        this.internaldata.svg.call(this.internaldata.zoom.transform, this.currentTransform)
+        this.internaldata.svg.call(this.internaldata.zoom.transform, this.currentTransform);
       } else {
-        const {g} = this.internaldata
-        this.transformSvg(g, size)
+        const {g} = this.internaldata;
+        this.transformSvg(g, size);
       }
-      this.layout.size(this.internaldata.tree, size, this.margin, this.maxTextLenght)
-      return this.updateGraph(source)
+      this.layout.size(this.internaldata.tree, size, this.margin, this.maxTextLenght);
+      return this.updateGraph(source);
     },
 
     onNodeClick (d) {
 			
       if (d.children) {
-        this.collapse(d)
+        this.collapse(d);
       } else {
-        this.expand(d)
+        this.expand(d);
       }
     },
 
     onData (data) {
       if (!data) {
-        this.internaldata.root = null
-        this.clean()
-        return
+        this.internaldata.root = null;
+        this.clean();
+        return;
       }
       const root = d3.hierarchy(data).sort((a, b) => { return compareString(a.data.text, b.data.text) })
       this.internaldata.root = root
@@ -344,6 +382,7 @@ export default {
       if (this.internaldata.root) {
         return this.updateGraph()
       }
+			this.$emit('zoom', true)
       return Promise.resolve('no graph')
     },
 
@@ -507,8 +546,9 @@ export default {
       if (!this.internaldata.tree) {
         return
       }
-      this.internaldata.tree = this.tree
-      this.redraw()
+      this.internaldata.tree = this.tree;
+			
+      this.redraw();
     },
 
     marginX (newMarginX, oldMarginX) {
@@ -547,12 +587,13 @@ export default {
 
 <style lang="less">
 
-@color-main: #009dff;	
+@color-main: #676767;	
 @color-t: #009dff;	
 @color-l: #cc46cc;	
 @color-s: #80c148;	
 @color-w: #ff9d00;
 @color-d: #ff004e;	
+@color-a: #ffd800;		
 	
 .treeclass svg * {
 	vector-effect: non-scaling-stroke;
@@ -560,7 +601,7 @@ export default {
 
 	
 .treeclass .nodetree circle {
-
+	stroke-width: 2;
 }
 
 .treeclass .node--internal circle {
@@ -576,7 +617,7 @@ export default {
 }
 
 .treeclass .nodetree.selected text {
-  font-weight: bold;
+  
 }
 
 .treeclass .node--internal text {
@@ -590,6 +631,7 @@ export default {
 	stroke-linecap: butt;
   stroke-opacity: 0.4;
   stroke-width: 2px;
+	pointer-events: none;
 }
 
 .treeclass {
@@ -611,9 +653,14 @@ export default {
 	.treeclass .linktree.type_d {
 		stroke: @color-d;
 	}	
+	
+	.treeclass .linktree.type_a {
+		stroke: @color-a;
+	}	
 
 .treeclass .nodetree.type_t circle {
 		fill: lighten(@color-t, 40%);
+		stroke: @color-t;
 }	
 	
 .treeclass .node--internal.type_t circle {
@@ -622,6 +669,7 @@ export default {
 	
 .treeclass .nodetree.type_w circle {
 		fill: lighten(@color-w, 40%);
+		stroke: @color-w;
 }	
 	
 .treeclass .node--internal.type_w circle {
@@ -630,6 +678,7 @@ export default {
 	
 .treeclass .nodetree.type_l circle {
 		fill: lighten(@color-l, 40%);
+		stroke: @color-l;
 }	
 	
 .treeclass .node--internal.type_l circle {
@@ -638,6 +687,7 @@ export default {
 
 .treeclass .nodetree.type_s circle {
 		fill: lighten(@color-s, 40%);
+		stroke: @color-s;
 }	
 	
 .treeclass .node--internal.type_s circle {
@@ -646,10 +696,20 @@ export default {
 	
 .treeclass .nodetree.type_d circle {
 		fill: lighten(@color-d, 40%);
+		stroke: @color-d;
 }	
 	
 .treeclass .node--internal.type_d circle {
 		fill: @color-d;
 }		
+	
+.treeclass .nodetree.type_a circle {
+		fill: lighten(@color-a, 40%);
+		stroke: @color-a;
+}	
+	
+.treeclass .node--internal.type_a circle {
+		fill: @color-a;
+}			
 	
 </style>
