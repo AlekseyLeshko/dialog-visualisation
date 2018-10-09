@@ -227,7 +227,8 @@ export default {
       const updateLinks = links.enter()
 				.append('path')
 				.attr('class', 'linktree')
-				.attr('data-name', d => d.data.name + '_' + d.id);
+				.attr('data-name', d => d.data.name.replace('(loop)', '').trim().replace(/\s/g, '-') + '_' + d.id)
+				.attr('data-parent-name', d => source.data.name.replace('(loop)', '').trim().replace(/\s/g, '-') + '_' + source.id);
 			
       const nodes = this.internaldata.g
 				.selectAll('.nodetree')
@@ -236,7 +237,8 @@ export default {
       const newNodes = nodes.enter()
 				.append('g')
 				.attr('class', 'nodetree')
-				.attr('data-name', d => d.data.name + '_' + d.id);
+				.attr('data-name', d => d.data.name.replace('(loop)', '').trim().replace(/\s/g, '-') + '_' + d.id)
+				.attr('data-parent-name', d => source.data.name.replace('(loop)', '').trim().replace(/\s/g, '-') + '_' + source.id);
 			
       const allNodes = newNodes.merge(nodes);
 
@@ -250,7 +252,6 @@ export default {
         .attr('x', 0)
         .attr('dx', 0)
         .attr('transform', 'rotate(0)')
-				.attr('data-name', d => d.data.name)
 				.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' ) 
         .on('click', d => {
           currentSelected = (currentSelected === d) ? null : d;
@@ -286,7 +287,7 @@ export default {
         .append('circle')
         .attr('r', this.radius / this.currentTransform.k );
 
-      allNodes.classed('node--internal', d => hasChildren(d))
+      allNodes.classed('node__internal', d => hasChildren(d))
         .classed('node--leaf', d => !hasChildren(d))
         .classed('selected', d => d === currentSelected)
 				.classed('type_t', d => d.data.circle === 'T' )
@@ -604,7 +605,7 @@ export default {
 	stroke-width: 2;
 }
 
-.treeclass .node--internal circle {
+.treeclass .node__internal circle {
   cursor: pointer;
   fill:  @color-main;
 	stroke: none;
@@ -620,7 +621,7 @@ export default {
   
 }
 
-.treeclass .node--internal text {
+.treeclass .node__internal text {
   text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
 }
 
@@ -663,7 +664,7 @@ export default {
 		stroke: @color-t;
 }	
 	
-.treeclass .node--internal.type_t circle {
+.treeclass .node__internal.type_t circle {
 		fill: @color-t;
 }
 	
@@ -672,7 +673,7 @@ export default {
 		stroke: @color-w;
 }	
 	
-.treeclass .node--internal.type_w circle {
+.treeclass .node__internal.type_w circle {
 		fill: @color-w;
 }
 	
@@ -681,7 +682,7 @@ export default {
 		stroke: @color-l;
 }	
 	
-.treeclass .node--internal.type_l circle {
+.treeclass .node__internal.type_l circle {
 		fill: @color-l;
 }	
 
@@ -690,7 +691,7 @@ export default {
 		stroke: @color-s;
 }	
 	
-.treeclass .node--internal.type_s circle {
+.treeclass .node__internal.type_s circle {
 		fill: @color-s;
 }	
 	
@@ -699,7 +700,7 @@ export default {
 		stroke: @color-d;
 }	
 	
-.treeclass .node--internal.type_d circle {
+.treeclass .node__internal.type_d circle {
 		fill: @color-d;
 }		
 	
@@ -708,7 +709,7 @@ export default {
 		stroke: @color-a;
 }	
 	
-.treeclass .node--internal.type_a circle {
+.treeclass .node__internal.type_a circle {
 		fill: @color-a;
 }			
 	

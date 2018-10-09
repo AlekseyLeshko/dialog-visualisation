@@ -11,7 +11,6 @@
 					v-bind:zoomable="true"
 					v-bind:fontSize="12"
 					v-on:clicked="currentNode"
-					v-on:mouseentered="test"
 					v-on:expand="expandNode"
 					v-on:zoom="zoom"
 					v-bind:layoutType="'euclidean'"> 
@@ -99,17 +98,39 @@
 				this.dialog.visible = true;
 				this.getBB(n.data.name);
 				
-			},
-			
-			test: function(e){
-				//console.log(e)
+				
+				let name = n.data.name.replace('(loop)', '').trim().replace(/\s/g, '-') + '_' + n.element.id;
+				
+				let paths = document.querySelectorAll('.linktree')
+				
+				for(var i = 0; i < paths.length; i++){
+					paths[i].classList.remove('active');
+				}
+				
+				getAllParantPath(name)
+				
+				function getAllParantPath(name){
+					
+					let path = document.querySelector(`[data-name=${name}]`);
+					let parent = path.getAttribute('data-parent-name');
+					
+					path.classList.add('active');
+					
+					if ( name !== parent ){
+					 	getAllParantPath(parent);
+					}
+					
+				}
+				
+				this.drawLoopLinks();
+				
 			},
 			
 			drawLoopLinks : function(){
-				/*
+				
 				let __this = this;
 				
-				let links = document.querySelectorAll('.loop-links');
+				let links = document.querySelectorAll('.loop-link');
 				for (var i = 0; i < links.length; i++){
 					links[i].remove();
 				}
@@ -123,6 +144,57 @@
 						
 						if (textNodes[i].textContent.indexOf('(loop)') + 1){
 							
+							let node = textNodes[i].parentNode,
+									name = textNodes[i].parentNode.getAttribute('data-name'),
+									loopName = textNodes[i].textContent.replace('(loop)', '').trim(),
+									parentName = textNodes[i].parentNode.getAttribute('data-parent-name');
+							
+							let parentNode = findParent(parentName, loopName);
+							
+							
+							
+							function findParent(name, search, callback){
+								
+								let n = document.querySelector(`g[data-name=${name}]`);
+								let current = n.getAttribute('data-name');
+								let parent = n.getAttribute('data-parent-name');
+								
+								if (current.indexOf(search) + 1) {
+								
+									return n;
+								} else {
+									if ( name !== parent ){
+										return findParent(parent, search);
+									}
+								}
+								
+							}
+									
+							let fromNode = {
+								elem: node,
+								x: Number(node.getAttribute('transform').split(',')[0].replace(/[a-zA-Z)(]+/g,"")),
+								y: Number(node.getAttribute('transform').split(',')[1].replace(/[a-zA-Z)(]+/g,""))
+							};
+							let toNode = {
+								elem: parentNode,
+								x: Number(parentNode.getAttribute('transform').split(',')[0].replace(/[a-zA-Z)(]+/g,"")),
+								y: Number(parentNode.getAttribute('transform').split(',')[1].replace(/[a-zA-Z)(]+/g,""))
+							};
+							let linkGroup = document.querySelector('.links-group');
+							let link = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+							
+							function transformNode (x, y) {
+    						return y + ',' + x
+  						}		
+							
+							let d = drawLink({x: fromNode.y, y: fromNode.x}, {x: toNode.y, y: toNode.x}, {transformNode} );
+																
+							link.setAttribute('d', d);//`M ${fromNode.x} ${fromNode.y} L ${toNode.x} ${toNode.y}` );
+							link.setAttribute('class','loop-link');
+							
+							linkGroup.appendChild(link);
+							
+							/*
 							let loopName = textNodes[i].textContent.replace('(loop)', '').trim();
 							let fromNode = {
 								elem: textNodes[i].nextSibling,
@@ -152,15 +224,13 @@
 							});
 							
 							linkGroup.appendChild(link);
-							
+							*/
 						}
 							
 					}
 					
-					console.log(loops)
-					
 				},300);
-				*/
+				
 			},
 			
 			expandNode : function(e){
@@ -411,11 +481,19 @@
 		background-image: url("data:image/svg+xml,%3Csvg width='18px' height='18px' viewBox='0 0 18 18' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cg id='Typography/icons' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' transform='translate(-314.000000, -429.000000)'%3E%3Cg id='Core' transform='translate(103.000000, 300.000000)' fill='%23000000'%3E%3Cg id='create' transform='translate(211.000000, 129.000000)'%3E%3Cpath d='M0,14.2 L0,18 L3.8,18 L14.8,6.9 L11,3.1 L0,14.2 L0,14.2 Z M17.7,4 C18.1,3.6 18.1,3 17.7,2.6 L15.4,0.3 C15,-0.1 14.4,-0.1 14,0.3 L12.2,2.1 L16,5.9 L17.7,4 L17.7,4 Z' id='Shape'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 	}
 	
-	.loop-links {
-		stroke: #000;
-		opacity: 0.1;
-		stroke-width:10px;
-		fill: none;
+	.loop-link {
+		stroke: #cc46cc;
+		fill:none;
+		stroke-dasharray: 3px;
+	}
+	
+	path {
+		transition: stroke-width .3s;
+	}
+	
+	path.active {
+		stroke-width: 6px!important;
+		transition: stroke-width .3s;
 	}
 	
 </style>
