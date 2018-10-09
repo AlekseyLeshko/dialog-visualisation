@@ -11,6 +11,7 @@
 					v-bind:zoomable="true"
 					v-bind:fontSize="12"
 					v-on:clicked="currentNode"
+					v-on:retract="retractNode"
 					v-on:expand="expandNode"
 					v-on:zoom="zoom"
 					v-bind:layoutType="'euclidean'"> 
@@ -99,7 +100,7 @@
 				this.getBB(n.data.name);
 				
 				
-				let name = n.data.name.replace('(loop)', '').trim().replace(/\s/g, '-') + '_' + n.element.id;
+				let name = n.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + n.element.id;
 				
 				let paths = document.querySelectorAll('.linktree')
 				
@@ -126,14 +127,18 @@
 				
 			},
 			
-			drawLoopLinks : function(){
-				
-				let __this = this;
-				
+			removeLoopLinks : function(){
 				let links = document.querySelectorAll('.loop-link');
 				for (var i = 0; i < links.length; i++){
 					links[i].remove();
 				}
+			},
+			
+			drawLoopLinks : function(){
+				
+				let __this = this;
+				
+				this.removeLoopLinks();
 				
 				setTimeout(function(){
 					
@@ -239,7 +244,15 @@
 			
 				this.dialog.visible = false;
 			}, 
+			
+			retractNode : function(e){
+				this.drawLoopLinks();
+			},
+			
 			changeType : function(e){
+				
+				this.drawLoopLinks();
+				
 				if (e == true){
 					this.treeType = 'tree';
 				} else {
