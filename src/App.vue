@@ -13,6 +13,7 @@
 					v-on:clicked="currentNode"
 					v-on:retract="retractNode"
 					v-on:expand="expandNode"
+					v-on:resized="resize"
 					v-on:zoom="zoom"
 					v-bind:layoutType="'euclidean'"> 
 		</tree>
@@ -24,9 +25,12 @@
 		</div>
 		
 		<div
-			v-if="dialog.visible && dialog.data.text" 
+			v-if="dialog.visible" 
 			class="dialog" 
 			v-bind:style="dialogPosition()">
+			
+			<div class="dialog__container" v-if="dialog.data.text">
+			
 			<div class="dialog__text">
 				{{dialog.data.text}}
 			</div>
@@ -37,9 +41,18 @@
 				class="dialog__button">
 						{{child.name}}
 			</div>
-		</div>
-		
-		<div class="icon_edit">
+			
+			</div>
+			
+			<a 
+				v-if="dialog.data.url" 
+				v-bind:title="dialog.data.url" 
+				target="_blank" 
+				v-bind:href="dialog.data.url"
+				v-bind:class="{'icon_only' : !dialog.data.text}" 
+				class="icon_edit">
+			
+			</a>
 			
 		</div>
 		
@@ -134,6 +147,10 @@
 				}
 			},
 			
+			resize : function(e){
+				this.removeLoopLinks();
+			},
+			
 			drawLoopLinks : function(){
 				
 				let __this = this;
@@ -194,42 +211,12 @@
 							
 							let d = drawLink({x: fromNode.y, y: fromNode.x}, {x: toNode.y, y: toNode.x}, {transformNode} );
 																
-							link.setAttribute('d', d);//`M ${fromNode.x} ${fromNode.y} L ${toNode.x} ${toNode.y}` );
+							link.setAttribute('d', d);
 							link.setAttribute('class','loop-link');
 							
 							linkGroup.appendChild(link);
 							
-							/*
-							let loopName = textNodes[i].textContent.replace('(loop)', '').trim();
-							let fromNode = {
-								elem: textNodes[i].nextSibling,
-								x: Number(textNodes[i].parentNode.getAttribute('transform').split(',')[0].replace(/[a-zA-Z)(]+/g,"")),
-								y: Number(textNodes[i].parentNode.getAttribute('transform').split(',')[1].replace(/[a-zA-Z)(]+/g,""))
-							};
-							let toNode = {
-								elem: document.querySelector('[data-name = "' + loopName + '"]').nextSibling,
-								x: Number(document.querySelector('[data-name = "' + loopName + '"]').parentNode.getAttribute('transform').split(',')[0].replace(/[a-zA-Z)(]+/g,"")),
-								y: Number(document.querySelector('[data-name = "' + loopName + '"]').parentNode.getAttribute('transform').split(',')[1].replace(/[a-zA-Z)(]+/g,""))
-							};
-							let linkGroup = document.querySelector('.links-group');
-							let link = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-							
-							function transformNode (x, y) {
-    						return y + ',' + x
-  						}
-							
-							let d = drawLink({x: fromNode.y, y: fromNode.x}, {x: toNode.y, y: toNode.x}, {transformNode} );
-																
-							link.setAttribute('d', d);//`M ${fromNode.x} ${fromNode.y} L ${toNode.x} ${toNode.y}` );
-							link.setAttribute('class','loop-links');
-							
-							loops.push({
-								from : fromNode,
-								to : toNode
-							});
-							
-							linkGroup.appendChild(link);
-							*/
+					
 						}
 							
 					}
@@ -247,6 +234,8 @@
 			
 			retractNode : function(e){
 				this.drawLoopLinks();
+				
+				this.dialog.visible = false;
 			},
 			
 			changeType : function(e){
@@ -273,7 +262,7 @@
 					if (text[i].textContent === name){
 						let bb = text[i].getBoundingClientRect();
 						
-						this.dialog.x = bb.x;
+						this.dialog.x = bb.x + (bb.width/2);
 						this.dialog.y = bb.y;
 						
 					}
@@ -408,15 +397,18 @@
 	.dialog {
 		position:absolute;
 		max-width: 250px;
-		min-width: 250px;
 		min-height: 20px;
+		
+		top:0;
+		left:0;
+		margin: 40px 0 0 0;
+	}
+	
+	.dialog__container {
 		background-color: #fafafa;
 		border-radius: 0 10px 10px 10px;
 		box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
-		top:0;
-		left:0;
 		padding: 8px;
-		margin: 40px 0 0 0;
 		line-height: 1.3;
 	}
 	
@@ -483,15 +475,21 @@
 	
 	.icon_edit {
 		position: absolute;
+		display:block;
 		cursor: pointer;
-		display: none;
 		top:0;
-		left:0;
+		right:0;
 		width:20px;
 		height:20px;
 		background-size: 18px;
 		background-position: center;
+		background-repeat: no-repeat;
 		background-image: url("data:image/svg+xml,%3Csvg width='18px' height='18px' viewBox='0 0 18 18' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cg id='Typography/icons' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' transform='translate(-314.000000, -429.000000)'%3E%3Cg id='Core' transform='translate(103.000000, 300.000000)' fill='%23000000'%3E%3Cg id='create' transform='translate(211.000000, 129.000000)'%3E%3Cpath d='M0,14.2 L0,18 L3.8,18 L14.8,6.9 L11,3.1 L0,14.2 L0,14.2 Z M17.7,4 C18.1,3.6 18.1,3 17.7,2.6 L15.4,0.3 C15,-0.1 14.4,-0.1 14,0.3 L12.2,2.1 L16,5.9 L17.7,4 L17.7,4 Z' id='Shape'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+		transform: translate(30px, 6px);
+	}
+	
+	.icon_only {
+		transform: translate(10px, -10px);
 	}
 	
 	.loop-link {

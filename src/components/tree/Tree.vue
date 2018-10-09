@@ -170,6 +170,8 @@ export default {
       this.layout.size(this.internaldata.tree, size, this.margin, this.maxTextLenght);
       this.applyZoom(size);
       this.redraw();
+			
+			this.$emit('resized', size);
     },
 
     completeRedraw ({margin = null, layout = null}) {
@@ -615,7 +617,13 @@ export default {
   opacity: .65;
   cursor: pointer;
 	text-anchor: middle;
+	transition: opacity .2s;
 }
+	
+.treeclass .nodetree text:hover {
+  opacity: 1;
+	transition: opacity .2s;
+}	
 
 .treeclass .nodetree.selected text {
   
@@ -624,6 +632,9 @@ export default {
 .treeclass .node__internal text {
   text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
 }
+	
+
+	
 
 .treeclass .linktree {
   fill: none;
