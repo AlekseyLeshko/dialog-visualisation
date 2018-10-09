@@ -230,7 +230,8 @@ export default {
 				.append('path')
 				.attr('class', 'linktree')
 				.attr('data-name', d => d.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + d.id)
-				.attr('data-parent-name', d => source.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + source.id);
+				.attr('data-parent-name', d => source.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + source.id)
+				.attr('data-type', d => d.data.circle);
 			
       const nodes = this.internaldata.g
 				.selectAll('.nodetree')
@@ -240,7 +241,8 @@ export default {
 				.append('g')
 				.attr('class', 'nodetree')
 				.attr('data-name', d => d.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + d.id)
-				.attr('data-parent-name', d => source.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + source.id);
+				.attr('data-parent-name', d => source.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + source.id)
+				.attr('data-type', d => d.data.circle);
 			
       const allNodes = newNodes.merge(nodes);
 

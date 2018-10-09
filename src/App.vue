@@ -1,6 +1,51 @@
 <template>
 	<div class="app">
 		
+		<!--LOGIN STATE -->
+		<div v-if="state === 'login'" class="app__state">
+			<div class="app__state-inner">
+			
+				<div class="logo">
+				</div>
+				
+				<text-field 
+					v-bind:label="'Email'">
+				</text-field>
+				
+				<text-field 
+					v-bind:type="'password'"
+					v-bind:label="'Password'">
+				</text-field>
+				
+				<select-list 
+					v-bind:k="'value'"
+					v-bind:v="'title'"
+					v-bind:active="0"
+					v-bind:options="[{
+						title : 'Production',
+						value : 0
+					},{
+						title : 'Stage',
+						value : 1
+					},{
+						title : 'Dev',
+						value : 2
+					}]">
+				</select-list>
+				
+				<btn-group>
+					<btn v-bind:label="'Log in'">
+					</btn>
+				</btn-group>	
+				
+			</div>
+		</div>
+		<!--LOGIN STATE -->
+		
+		<!--VIEWER STATE -->
+		<div 
+			v-if="state === 'viewer'" 
+			class="app__state app__state_viewer">
 		<tree 
 					ref="tree"
 					v-bind:data="tree" 
@@ -65,56 +110,70 @@
 			<div class="type_a">A — Action</div>
 		</div>
 		
+		</div>
+		<!--VIEWER STATE -->
+		
 	</div>
 </template>
 
 <script>
-	/**
- 	* Библиотеки 
- 	*/
-	import platform from 'platform';
-	import {compareString, anchorTodx, drawLink, toPromise, findInParents, mapMany, translate} from '../src/components/tree/d3-utils'
 
-	import tree from '../src/components/tree/Tree.vue';
-	import checkbox from '../src/components/checkbox/checkbox.vue';
+	import platform 	from 'platform';
+	import {compareString, anchorTodx, drawLink, toPromise, findInParents, mapMany, translate} from '../src/components/tree/d3-utils';
 
-	/**
- 	* Контейнер приложения
- 	*/
+	import tree 			from '../src/components/tree/Tree.vue';
+	import checkbox 	from '../src/components/checkbox/checkbox.vue';
+	import textField 	from '../src/components/text-field/text-field.vue';
+	import selectList from '../src/components/select-list/select-list.vue';
+	import btn 				from '../src/components/btn/btn.vue';
+	import btnGroup		from '../src/components/btn-group/btn-group.vue';
+
+
 	export default {
 		name: 'app',
 		components: {
 			tree,
-			checkbox
+			checkbox,
+			textField,
+			selectList,
+			btn,
+			btnGroup
 		},
 		data: function() {
 			return {
 				tree: window.ddd,
 				treeType: 'tree',
+				/**
+ 				* Положение и состояния для панели тултипа пейлоада
+ 				*/
 				dialog: {
 					visible: false,
 					data: {},
 					x: 0,
 					y: 0
 				},
-				iconEdit: {
-					visible: false,
-					url: null,
-					x: 0,
-					y: 0
-				},
-				loops : []
+				/**
+ 				* Состояние: `login`, `viewer`
+ 				*/
+				state: 'login',
+				/**
+ 				* Логин/пароль
+ 				*/
+				login: {
+					email: null,
+					pass: null
+				}
 			}
 		},
 		methods: {
+			
 			currentNode : function(n){
+				
 				this.dialog.data = n.data;
 				this.dialog.visible = true;
 				this.getBB(n.data.name);
 				
-				
 				let name = n.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + n.element.id;
-				
 				let paths = document.querySelectorAll('.linktree')
 				
 				for(var i = 0; i < paths.length; i++){
@@ -166,10 +225,11 @@
 						
 						if (textNodes[i].textContent.indexOf('(loop)') + 1){
 							
-							let node = textNodes[i].parentNode,
-									name = textNodes[i].parentNode.getAttribute('data-name'),
-									loopName = textNodes[i].textContent.replace('(loop)', '').trim(),
-									parentName = textNodes[i].parentNode.getAttribute('data-parent-name');
+							let tn = textNodes[i],
+									node = tn.parentNode,
+									name = tn.parentNode.getAttribute('data-name'),
+									loopName = tn.textContent.replace('(loop)', '').trim(),
+									parentName = tn.parentNode.getAttribute('data-parent-name');
 							
 							let parentNode = findParent(parentName, loopName);
 							
@@ -216,9 +276,7 @@
 							
 							linkGroup.appendChild(link);
 							
-					
 						}
-							
 					}
 					
 				},300);
@@ -250,10 +308,7 @@
 				this.dialog.visible = false;
 			},
 			zoom : function(e){
-				
 				this.getBB(this.dialog.data.name);
-				
-				
 			},
 			getBB : function(name){
 				let text = document.getElementsByTagName('text');
@@ -322,24 +377,6 @@
 			outline: none;
 		}
 	}
-	
-	:root { 
-		--color-background: @color-background;
-		--color-white: @color-white;
-		--color-black: @color-black;
-		--color-border: @color-border;
-		--color-gray-font: @color-gray-font;
-		--color-active: @color-active;
-		--color-hover: @color-hover;
-		--color-border-active: @color-border-active;
-		--color-border-hover: @color-border-hover;
-		--color-error: @color-error;
-		--logo-color-main: @color-active;
-		--logo-color-main-tint: darken(@color-active, 20%);
-		--logo-color-font: @color-black;
-		--logo-color-second: @color-white;
-		--logo-color-second-tint: darken(@color-white, 20%);
-	}
 
 	#app,
 	.app {
@@ -350,7 +387,30 @@
 		width: 100vw;
 		height: 100vh;
 		z-index: 100;
+		
+		&__state {
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+			display: flex;
+			justify-content: center;
+		}
+		
+		&__state_viewer {
+			display:block;
+		}
+		
+		&__state-inner {
+			width: 250px;
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			min-height: 500px;
+		}
+		
 	}
+	
 	
 	.viewport {
 		height: 100vh;
@@ -360,31 +420,6 @@
 		width: 100%;
 		height: 100%;
 		background-color: @color-white;
-	}
-
-	.app-states {
-		width: 100vw;
-		height: 100vh;
-		position: absolute;
-		overflow: hidden;
-		top: 0;
-		left: 0;
-		box-sizing: border-box;
-		background-color: @color-background;
-		.transition(all .3s ease);
-
-		&__screen {
-			width: 100%;
-			height: 100%;
-			background-color: @color-white;
-			.animation(app-states_show .3s ease 1);
-			.vertical-scroll();
-		}
-
-		&__main {
-			width: 100%;
-			height: 100%;
-		}
 	}
 	
 	.tools {
@@ -398,29 +433,30 @@
 		position:absolute;
 		max-width: 250px;
 		min-height: 20px;
-		
 		top:0;
 		left:0;
-		margin: 40px 0 0 0;
+		margin: 35px 0 0 0;
+		
+		&__container {
+			background-color: #fafafa;
+			border-radius: 0 10px 10px 10px;
+			box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
+			padding: 8px;
+			line-height: 1.3;
+		}
+		
+		&__button {
+			background-color: #fff;
+			border-radius: 5px;
+			padding: 10px 0;
+			box-sizing: border-box;
+			margin: 10px 0 0 0;
+			text-align: center;
+			box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+		}
+		
 	}
 	
-	.dialog__container {
-		background-color: #fafafa;
-		border-radius: 0 10px 10px 10px;
-		box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
-		padding: 8px;
-		line-height: 1.3;
-	}
-	
-	.dialog__button {
-		background-color: #fff;
-		border-radius: 5px;
-		padding: 10px 0;
-		box-sizing: border-box;
-		margin: 10px 0 0 0;
-		text-align: center;
-		box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
-	}
 	
 	.legend {
 		position: absolute;
@@ -430,52 +466,55 @@
 		box-sizing: border-box;
 		display: flex;
 		justify-content: space-between;
-	}
-	
-	.legend div {
-		margin: 20px 0 20px 40px;
-		text-align: left;
-		flex-grow: 1;
-	}
-	
-	.legend div:before {
-		content: '';
-		display: block;
-		position: relative;
-		transform: translate(-15px, 13px);
-		border-radius: 10px;
-		background-color: #ccc;
-		width: 10px;
-		height: 10px;
-	} 
-	
-	.legend div.type_t:before {
-		background-color: @color-t;
-	}
-	
-	.legend div.type_l:before {
-		background-color: @color-l;
-	}
-	
-	.legend div.type_s:before {
-		background-color: @color-s;
-	}
-	
-	.legend div.type_w:before {
-		background-color: @color-w;
-	}
-	
-	.legend div.type_d:before {
-		background-color: @color-d;
-	}
-	
-	.legend div.type_a:before {
-		background-color: @color-a;
+		
+		& div {
+			margin: 20px 0 20px 40px;
+			text-align: left;
+			flex-grow: 1;
+		}
+		
+		& div:before {
+			content: '';
+			display: block;
+			position: relative;
+			transform: translate(-15px, 13px);
+			border-radius: 10px;
+			background-color: #ccc;
+			width: 10px;
+			height: 10px;
+		} 
+		
+		& div.type_t:before {
+			background-color: @color-t;
+		}
+
+		& div.type_l:before {
+			background-color: @color-l;
+		}
+
+		& div.type_s:before {
+			background-color: @color-s;
+		}
+
+		& div.type_w:before {
+			background-color: @color-w;
+		}
+
+		& div.type_d:before {
+			background-color: @color-d;
+		}
+
+		& div.type_a:before {
+			background-color: @color-a;
+		}
+		
 	}
 	
 	.icon_edit {
 		position: absolute;
 		display:block;
+		opacity: 0.5;
+		transition: opacity .2s;
 		cursor: pointer;
 		top:0;
 		right:0;
@@ -488,8 +527,13 @@
 		transform: translate(30px, 6px);
 	}
 	
+	.icon_edit:hover {
+		opacity: 1;
+		transition: opacity .2s;
+	}
+	
 	.icon_only {
-		transform: translate(10px, -10px);
+		transform: translate(10px, -5px);
 	}
 	
 	.loop-link {
@@ -505,6 +549,15 @@
 	path.active {
 		stroke-width: 6px!important;
 		transition: stroke-width .3s;
+	}
+	
+	.logo {
+		width: 76px;
+		height: 76px;
+		background-position: center;
+		background-repeat: no-repeat;
+		background-size: 100%;
+		background-image: url("data:image/svg+xml,%3Csvg class='Logostyled__StyledSvgIcon-bWWVcV emhBcb' width='76' height='76' viewBox='0 0 76 76' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath fill='none' d='M-133-47h1680v1711H-133z'%3E%3C/path%3E%3Cg fill-rule='nonzero'%3E%3Ccircle fill='%232978fd' cx='38' cy='38' r='38'%3E%3C/circle%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M11.368 38.829c-.167 0-.354-.02-.522-.058-1.193-.304-1.94-1.523-1.66-2.761 1.25-5.258 5.82-8.934 11.116-8.934 5.296 0 9.884 3.676 11.115 8.934a2.291 2.291 0 0 1-1.66 2.761c-1.194.305-2.406-.457-2.704-1.695-.765-3.2-3.544-5.428-6.77-5.428-3.226 0-6.005 2.228-6.77 5.428a2.201 2.201 0 0 1-2.145 1.753zM64.632 38.829c-1.008 0-1.921-.705-2.182-1.753-.765-3.2-3.544-5.428-6.77-5.428-3.227 0-6.005 2.228-6.77 5.428-.298 1.22-1.492 1.981-2.704 1.695-1.194-.304-1.94-1.523-1.66-2.761 1.25-5.258 5.819-8.934 11.115-8.934 5.297 0 9.884 3.676 11.115 8.934a2.291 2.291 0 0 1-1.66 2.761c-.13.039-.298.058-.484.058z'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 	}
 	
 </style>
