@@ -30,8 +30,8 @@
 					v-on:onActive="setEnv"
 					v-bind:k="'value'"
 					v-bind:v="'title'"
-					v-bind:active="envActive"
-					v-bind:options="env">
+					v-bind:active="env.active"
+					v-bind:options="env.options">
 				</select-list>
 				
 				<btn-group>
@@ -52,13 +52,13 @@
 		<tree 
 					ref="tree"
 					v-bind:data="tree" 
-					v-bind:type="treeType" 
+					v-bind:type="d3.treeType" 
 					v-bind:node-text="'name'" 
 					v-bind:radius="6"
-					v-bind:duration="300"
+					v-bind:duration="d3.duration"
 					v-bind:zoomable="true"
 					v-bind:fontSize="12"
-					v-on:clicked="currentNode"
+					v-on:clicked="nodeInfo"
 					v-on:retract="retractNode"
 					v-on:expand="expandNode"
 					v-on:resized="resize"
@@ -147,7 +147,13 @@
 		data: function() {
 			return {
 				tree: window.treeData,
-				treeType: 'tree',
+				/**
+ 				* опции для d3
+ 				*/
+				d3: {
+					treeType: 'tree',
+					duration: 300
+				},
 				/**
  				* Положение и состояния для панели тултипа пейлоада
  				*/
@@ -165,32 +171,43 @@
  				* Логин/пароль
  				*/
 				login: {
-					email: null,
-					pass: null,
-					token: null,
-					env: null
+					email	: null,
+					pass	: null,
+					token	: null,
+					env		: null
 				},
-				env: [{
-						title : 'Production',
-						value : 0
-					},{
-						title : 'Stage',
-						value : 1
-					},{
-						title : 'Dev',
-						value : 2
-					}],
-				envActive: 0
+				/**
+ 				* опции для компонента селекта выбора окружения
+ 				*/
+				env: {
+					options: [
+						{
+							title : 'Production',
+							value : 0
+						},{
+							title : 'Stage',
+							value : 1
+						},{
+							title : 'Dev',
+							value : 2
+						}
+					],
+					active: 0
+				}
 			}
 		},
 		methods: {
-			
+			/**
+ 			* Логин, авторизация и загрузка данных 
+ 			*/
 			loadData: function() {
         const email = this.login.email;
         const password = this.login.pass;
         const env = this.login.env;
 				const __this = this;
 
+				this.state= 'loading';
+				
         login(email, password, env)
             .then(data => {
                 if (!data.success) throw data.error;
@@ -208,22 +225,37 @@
 									
 								});
             })
-        		.catch(e => alert(JSON.stringify(e)));
+        		.catch(e => {
+							__this.state = 'login';
+							console.log(JSON.stringify(e));
+						});
     	},
 			
+			/**
+ 			* Данные поля email
+ 			*/
 			setEmail: function(e) {
 				this.login.email = e;
 			},
 			
+			/**
+ 			* Данные поля pass
+ 			*/
 			setPass: function(e) {
 				this.login.pass = e;
 			},
 			
+			/**
+ 			* Данные селекта env
+ 			*/
 			setEnv: function(e) {
-				this.login.env = this.env[e].title;
-				this.envActive = e;
+				this.login.env = this.env.options[e].title;
+				this.env.active = e;
 			},
 			
+			/**
+ 			* Проверка токена
+ 			*/
 			getToken: function(){
 				const token = localStorage.getItem('d3.apiToken');
         const env = localStorage.getItem('d3.env');
@@ -233,11 +265,11 @@
 				if (token && env) {
 						
 						__this.state = 'loading';
+						__this.login.token = token;
+						__this.login.env = env;
 					
             loadFromApi(env, token, function(e){
 									
-							__this.login.token = token;
-							__this.login.env = env;
 							__this.tree = e;
 							__this.state = 'viewer';
 									
@@ -247,7 +279,10 @@
 				}
 			},
 			
-			currentNode : function(n){
+			/**
+ 			* Метод события клика на заголовок ноды. Информация о ноде
+ 			*/
+			nodeInfo : function(n){
 				
 				this.dialog.data = n.data;
 				this.dialog.visible = true;
@@ -279,6 +314,9 @@
 				
 			},
 			
+			/**
+ 			* Удалить loop ссылку
+ 			*/
 			removeLoopLinks : function(){
 				let links = document.querySelectorAll('.loop-link');
 				for (var i = 0; i < links.length; i++){
@@ -286,10 +324,16 @@
 				}
 			},
 			
+			/**
+ 			* Метод события ресайза окна. Удалить loop ссылку
+ 			*/
 			resize : function(e){
 				this.removeLoopLinks();
 			},
 			
+			/**
+ 			* Нарисовать loop ссылку.
+ 			*/
 			drawLoopLinks : function(){
 				
 				let __this = this;
@@ -299,7 +343,6 @@
 				setTimeout(function(){
 					
 					let textNodes = document.getElementsByTagName('text');
-					let loops = [];
 					
 					for (var i = 0; i < textNodes.length; i++ ){
 						
@@ -312,8 +355,6 @@
 									parentName = tn.parentNode.getAttribute('data-parent-name');
 							
 							let parentNode = findParent(parentName, loopName);
-							
-							
 							
 							function findParent(name, search, callback){
 								
@@ -359,10 +400,13 @@
 						}
 					}
 					
-				},300);
+				}, __this.d3.duration);
 				
 			},
 			
+			/**
+ 			* Метод события раскрытия ноды. 
+ 			*/
 			expandNode : function(e){
 				
 				this.drawLoopLinks();
@@ -370,26 +414,38 @@
 				this.dialog.visible = false;
 			}, 
 			
+			/**
+ 			* Метод события закрытия ноды. 
+ 			*/
 			retractNode : function(e){
 				this.drawLoopLinks();
 				
 				this.dialog.visible = false;
 			},
 			
+			/**
+ 			* Смена режима отображения графика. 
+ 			*/
 			changeType : function(e){
 				
 				this.drawLoopLinks();
 				
 				if (e == true){
-					this.treeType = 'tree';
+					this.d3.treeType = 'tree';
 				} else {
-					this.treeType = 'cluster';
+					this.d3.treeType = 'cluster';
 				}
 				this.dialog.visible = false;
 			},
+			
+			/**
+ 			* Метод события изменения масштаба. 
+ 			*/
 			zoom : function(e){
 				this.getBB(this.dialog.data.name);
 			},
+			
+			
 			getBB : function(name){
 				let text = document.getElementsByTagName('text');
 				
@@ -403,10 +459,15 @@
 					}
 				}
 			},
+			
+			/**
+ 			* Положение превьюхи пейлоада. 
+ 			*/
 			dialogPosition : function(){
 				return `top: ${this.dialog.y}px; left: ${this.dialog.x}px`;
 			}
 		},
+		
 		created: function() {
 			window.APP = this;
 			
@@ -417,7 +478,6 @@
 			window.addEventListener('click', function(e){
 				
 				if (e.target.nodeName === 'svg'){
-					
 					if (__this.dialog && __this.dialog.visible) __this.dialog.visible = false;
 				}
 				
