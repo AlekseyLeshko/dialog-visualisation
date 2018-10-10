@@ -1,6 +1,13 @@
 <template>
 	<div class="app">
 		
+		<!-- LOADING STATE -->
+		<div v-if="state === 'loading'" class="app__state">
+			<loading-spinner>
+			</loading-spinner>
+		</div>
+		<!-- LOADING STATE -->
+		
 		<!--LOGIN STATE -->
 		<div v-if="state === 'login'" class="app__state">
 			<div class="app__state-inner">
@@ -9,32 +16,28 @@
 				</div>
 				
 				<text-field 
+					v-on:onValue="setEmail"
 					v-bind:label="'Email'">
 				</text-field>
 				
 				<text-field 
+					v-on:onValue="setPass"
 					v-bind:type="'password'"
 					v-bind:label="'Password'">
 				</text-field>
 				
 				<select-list 
+					v-on:onActive="setEnv"
 					v-bind:k="'value'"
 					v-bind:v="'title'"
-					v-bind:active="0"
-					v-bind:options="[{
-						title : 'Production',
-						value : 0
-					},{
-						title : 'Stage',
-						value : 1
-					},{
-						title : 'Dev',
-						value : 2
-					}]">
+					v-bind:active="envActive"
+					v-bind:options="env">
 				</select-list>
 				
 				<btn-group>
-					<btn v-bind:label="'Log in'">
+					<btn 
+						v-on:click.native="loadData"
+						v-bind:label="'Log in'">
 					</btn>
 				</btn-group>	
 				
@@ -118,15 +121,16 @@
 
 <script>
 
-	import platform 	from 'platform';
+	import platform 				from 'platform';
 	import {compareString, anchorTodx, drawLink, toPromise, findInParents, mapMany, translate} from '../src/components/tree/d3-utils';
 
-	import tree 			from '../src/components/tree/Tree.vue';
-	import checkbox 	from '../src/components/checkbox/checkbox.vue';
-	import textField 	from '../src/components/text-field/text-field.vue';
-	import selectList from '../src/components/select-list/select-list.vue';
-	import btn 				from '../src/components/btn/btn.vue';
-	import btnGroup		from '../src/components/btn-group/btn-group.vue';
+	import tree 						from '../src/components/tree/Tree.vue';
+	import checkbox 				from '../src/components/checkbox/checkbox.vue';
+	import textField 				from '../src/components/text-field/text-field.vue';
+	import selectList 			from '../src/components/select-list/select-list.vue';
+	import btn 							from '../src/components/btn/btn.vue';
+	import btnGroup					from '../src/components/btn-group/btn-group.vue';
+	import loadingSpinner		from '../src/components/loading-spinner/loading-spinner.vue';
 
 
 	export default {
@@ -137,11 +141,12 @@
 			textField,
 			selectList,
 			btn,
-			btnGroup
+			btnGroup,
+			loadingSpinner
 		},
 		data: function() {
 			return {
-				tree: window.ddd,
+				tree: window.treeData,
 				treeType: 'tree',
 				/**
  				* Положение и состояния для панели тултипа пейлоада
@@ -153,7 +158,7 @@
 					y: 0
 				},
 				/**
- 				* Состояние: `login`, `viewer`
+ 				* Состояние: `login`, `viewer`, `loading`
  				*/
 				state: 'login',
 				/**
@@ -161,11 +166,86 @@
  				*/
 				login: {
 					email: null,
-					pass: null
-				}
+					pass: null,
+					token: null,
+					env: null
+				},
+				env: [{
+						title : 'Production',
+						value : 0
+					},{
+						title : 'Stage',
+						value : 1
+					},{
+						title : 'Dev',
+						value : 2
+					}],
+				envActive: 0
 			}
 		},
 		methods: {
+			
+			loadData: function() {
+        const email = this.login.email;
+        const password = this.login.pass;
+        const env = this.login.env;
+				const __this = this;
+
+        login(email, password, env)
+            .then(data => {
+                if (!data.success) throw data.error;
+                const token = data.data.token;
+								
+                localStorage.setItem('d3.apiToken', token);
+                localStorage.setItem('d3.env', env);
+					
+								__this.login.token = token;
+					
+                loadFromApi(env, token, function(e){
+									
+									__this.tree = e;
+									__this.state = 'viewer';
+									
+								});
+            })
+        		.catch(e => alert(JSON.stringify(e)));
+    	},
+			
+			setEmail: function(e) {
+				this.login.email = e;
+			},
+			
+			setPass: function(e) {
+				this.login.pass = e;
+			},
+			
+			setEnv: function(e) {
+				this.login.env = this.env[e].title;
+				this.envActive = e;
+			},
+			
+			getToken: function(){
+				const token = localStorage.getItem('d3.apiToken');
+        const env = localStorage.getItem('d3.env');
+				const __this = this;
+				
+				
+				if (token && env) {
+						
+						__this.state = 'loading';
+					
+            loadFromApi(env, token, function(e){
+									
+							__this.login.token = token;
+							__this.login.env = env;
+							__this.tree = e;
+							__this.state = 'viewer';
+									
+						});
+        } else {
+					__this.state = 'login';
+				}
+			},
 			
 			currentNode : function(n){
 				
@@ -180,7 +260,7 @@
 					paths[i].classList.remove('active');
 				}
 				
-				getAllParantPath(name)
+				getAllParantPath(name);
 				
 				function getAllParantPath(name){
 					
@@ -332,6 +412,8 @@
 			
 			let __this = this;
 			
+			this.getToken();
+			
 			window.addEventListener('click', function(e){
 				
 				if (e.target.nodeName === 'svg'){
@@ -456,7 +538,6 @@
 		}
 		
 	}
-	
 	
 	.legend {
 		position: absolute;

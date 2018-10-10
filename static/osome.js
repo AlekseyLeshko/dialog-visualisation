@@ -1,3 +1,5 @@
+window.treeData = [];
+
 const host = {
   'Production': 'api.osome.com',
   'Stage': 'api.stage.osome.club',
@@ -16,17 +18,17 @@ const dialogFlowAgent = {
   'Dev': '7847a518-d6a3-434c-b8c3-2e6c23a10483'
 };
 
-function loadFromApi(env, token) {
+function loadFromApi(env, token, callback) {
   return Promise.all([getIntents(env, token), getPayloads(env, token)])
     .then(result => {
       const payloads = transformData(result[1].data.fbhooks, result[0].intents, env);
-      console.log('All payloads', payloads);
+      //console.log('All payloads', payloads);
       const internalPayloads = getInternalPayloads(payloads);
-      console.log('Internal payloads', internalPayloads);
+      //console.log('Internal payloads', internalPayloads);
       const main = ['new_user_start', 'guest_start', 'invited_user_start', 'get_started_payload'];
       const topLevel = topLevelPayloads(payloads, internalPayloads)
         .filter(payload => !main.includes(payload.name));
-      console.log('Top level payloads', topLevel);
+      //console.log('Top level payloads', topLevel);
       const dialogFlowFallbacks = payloads.filter(intent => (intent.inputContexts && (intent.inputContexts.length === 0)));
       const treeData = {
         name: env,
@@ -45,7 +47,9 @@ function loadFromApi(env, token) {
           }
         ]
       };
-      draw(treeData);
+			
+			if (callback) callback(treeData);
+      //draw(treeData);
     });
 }
 
