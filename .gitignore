@@ -1,7 +1,4 @@
 node_modules/
-dist/
-dist/build.js
 
-dist/build.js.map
 
 *.log
