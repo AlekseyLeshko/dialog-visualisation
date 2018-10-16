@@ -193,7 +193,8 @@
 						}
 					],
 					active: 0
-				}
+				},
+				amplitude: []
 			}
 		},
 		methods: {
@@ -452,10 +453,9 @@
 				for (var i = 0; i < text.length; i++){
 					if (text[i].textContent === name){
 						let bb = text[i].getBoundingClientRect();
-						
+												
 						this.dialog.x = bb.x + (bb.width/2);
 						this.dialog.y = bb.y;
-						
 					}
 				}
 			},
@@ -471,17 +471,14 @@
 		created: function() {
 			window.APP = this;
 			
-			let __this = this;
-			
 			this.getToken();
 			
-			window.addEventListener('click', function(e){
-				
+			window.addEventListener('click', e => {
 				if (e.target.nodeName === 'svg'){
-					if (__this.dialog && __this.dialog.visible) __this.dialog.visible = false;
+					if (this.dialog && this.dialog.visible) this.dialog.visible = false;
 				}
 				
-			},false);
+			}, false);
 			
 		}
 	}
