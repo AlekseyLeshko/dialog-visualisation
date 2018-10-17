@@ -11,6 +11,16 @@
 	<link rel="icon" href="static/favicon-32x32.png" sizes="32x32" type="image/png" />
 	<link rel="stylesheet" href="static/loading.css" />
 	<script src="static/osome.js"></script>
+	<script src="https://yastatic.net/jquery/3.1.1/jquery.min.js"></script>
+  <script>
+	
+	$(function(){
+		$.get( "https://amplitude-hook.herokuapp.com/?from=wb_01_start&to=onb_signin&start=20181011&end=20181015", function( data ) {
+  		console.log(data)
+		}, "json" );
+	});
+		
+	</script>
 </head>
 
 <body>

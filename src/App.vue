@@ -413,6 +413,23 @@
 				this.drawLoopLinks();
 			
 				this.dialog.visible = false;
+				
+				let from = e.data.name;
+				
+
+				
+				if (from != 'Stage' && from != 'Main' && from != 'Orphaned' && from != 'Dialogflow Misc' && e.data.children && e.data.children.length ){
+					for (var i = 0; i < e.data.children.length; i++){
+						console.log('send:', e.data.name, e.data.children[i].name)
+						this.loadAmplitude(e.data.name, e.data.children[i].name, function(result){
+							
+							console.log(result)
+						});
+					}
+				}
+				
+				//this.loadAmplitude();
+				
 			}, 
 			
 			/**
@@ -465,8 +482,18 @@
  			*/
 			dialogPosition : function(){
 				return `top: ${this.dialog.y}px; left: ${this.dialog.x}px`;
+			},
+			
+			loadAmplitude: function(from, to, callback){
+				
+				$.get(`https://amplitude-hook.herokuapp.com/?from=${from}&to=${to}&start=20181001&end=20181017`, function( data ) { 
+					callback(data);
+				})
+				
 			}
+			
 		},
+		
 		
 		created: function() {
 			window.APP = this;

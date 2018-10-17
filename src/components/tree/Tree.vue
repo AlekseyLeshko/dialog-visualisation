@@ -252,6 +252,7 @@ export default {
       });
 
       newNodes.append('text')
+				.attr('class','node_name')
         .attr('dy', -10 / this.currentTransform.k)
         .attr('x', 0)
         .attr('dx', 0)
@@ -268,6 +269,14 @@ export default {
           //d3.event.stopPropagation();
 					this.$emit('mouseentered', {element: d, data: d.data});
 				});
+			
+			newNodes.append('text')
+				.attr('class','node_value')	
+        .attr('dy', 20 / this.currentTransform.k)
+        .attr('x', 0)
+        .attr('dx', 0)
+        .attr('transform', 'rotate(0)')
+				.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' ) 
 
 			
 			
@@ -306,7 +315,8 @@ export default {
         .attr('transform', d => translate(d, this.layout))
         .attr('opacity', 1));
 
-      const text = allNodes.select('text').text(d => d.data[this.nodeText]);
+      const text = allNodes.select('.node_name').text(d => d.data[this.nodeText]);
+			const description = allNodes.select('.node_value').text(d => '');
 
       const {transformText} = this.layout
       allNodes.each((d,e) => {
@@ -434,9 +444,13 @@ export default {
         this.$emit('zoom', {transform})
         g.attr('transform', transformToApply)
 				
-				g.selectAll('text')
+				g.selectAll('.node_name')
 					.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' )
-					.attr('dy', -10 / this.currentTransform.k) 
+					.attr('dy', -10 / this.currentTransform.k)
+				
+				g.selectAll('.node_value')
+					.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' )
+					.attr('dy', 20 / this.currentTransform.k)
 				
 				g.selectAll('circle').attr('r', this.radius / this.currentTransform.k )
       }

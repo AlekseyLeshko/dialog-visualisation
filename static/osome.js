@@ -234,12 +234,14 @@ function getTreeNodes(payload, previousNodes = []) {
   if (previousNodes.includes(payload.name)) return { name: `${payload.name} (loop)`, circle: 'L' };
   const nodes = [...previousNodes, payload.name];
   const children = payload.children.map(child => getTreeNodes(child, nodes));
+	
   return {
     name: payload.name,
     children: splitChildren(children),
     circle: getCircle(payload),
     url: payload.url,
-    text: payload.text
+    text: payload.text,
+		raw: payload
   }
 }
 
