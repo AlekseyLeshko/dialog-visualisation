@@ -268,16 +268,26 @@
 						__this.state = 'loading';
 						__this.login.token = token;
 						__this.login.env = env;
-					
+					/*
             loadFromApi(env, token, function(e){
 									
 							__this.tree = e;
 							__this.state = 'viewer';
 									
 						});
+					*/
+					
+					this.tree = window.ddd; //for test
+					this.state = 'viewer';
+					
+					
         } else {
 					__this.state = 'login';
 				}
+			},
+			
+			replaceName : function(n){
+				return n.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_';
 			},
 			
 			/**
@@ -286,10 +296,11 @@
 			nodeInfo : function(n){
 				
 				this.dialog.data = n.data;
+				this.dialog.id = n.element.id;
 				this.dialog.visible = true;
-				this.getBB(n.data.name);
+				this.getBB(n.element.id);
 				
-				let name = n.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + n.element.id;
+				let name = this.replaceName(n.data.name) + n.element.id;
 				let paths = document.querySelectorAll('.linktree')
 				
 				for(var i = 0; i < paths.length; i++){
@@ -415,20 +426,44 @@
 				this.dialog.visible = false;
 				
 				let from = e.data.name;
+				let from_elem = document.querySelector(`[data-id="${e.element.id}"] .node_value`);
 				
-
+				let __this = this;
+			
+				
+				
+				
+				
 				
 				if (from != 'Stage' && from != 'Main' && from != 'Orphaned' && from != 'Dialogflow Misc' && e.data.children && e.data.children.length ){
+					
 					for (var i = 0; i < e.data.children.length; i++){
-						console.log('send:', e.data.name, e.data.children[i].name)
-						this.loadAmplitude(e.data.name, e.data.children[i].name, function(result){
+						
+						this.loadAmplitude(e.data.name.replace('(loop)',''), e.data.children[i].name.replace('(loop)',''), i, function(result, g) {
 							
-							console.log(result)
+							var to_elem = document.querySelector(`[data-id="${e.element.children[g].id}"] .node_value`);
+							
+							if (result.status === 'Success'){
+								 
+								from_elem.textContent = result.data.from.value;
+								to_elem.textContent = 'F ' + result.data.conversion.toFixed(1)//result.data.to.value;
+								
+								e.data.value = result.data.from.value; 
+								e.data.children[g].value = 'F ' + result.data.conversion.toFixed(1);
+								
+							} else {
+								from_elem.textContent = '—';
+								to_elem.textContent = '—'//result.data.to.value;
+								
+								e.data.value = '—'; 
+								e.data.children[g].value = '—';
+							}
+						
 						});
 					}
 				}
 				
-				//this.loadAmplitude();
+			
 				
 			}, 
 			
@@ -460,21 +495,18 @@
  			* Метод события изменения масштаба. 
  			*/
 			zoom : function(e){
-				this.getBB(this.dialog.data.name);
+				if (this.dialog.visible) this.getBB(this.dialog.id);
 			},
 			
 			
-			getBB : function(name){
-				let text = document.getElementsByTagName('text');
-				
-				for (var i = 0; i < text.length; i++){
-					if (text[i].textContent === name){
-						let bb = text[i].getBoundingClientRect();
+			getBB : function(id){
+						let g = document.querySelector('[data-id="'+id+'"]');
+						
+						let bb = g.getBoundingClientRect();
 												
 						this.dialog.x = bb.x + (bb.width/2);
 						this.dialog.y = bb.y;
-					}
-				}
+
 			},
 			
 			/**
@@ -484,11 +516,14 @@
 				return `top: ${this.dialog.y}px; left: ${this.dialog.x}px`;
 			},
 			
-			loadAmplitude: function(from, to, callback){
+			loadAmplitude: function(from, to, i, callback){
 				
-				$.get(`https://amplitude-hook.herokuapp.com/?from=${from}&to=${to}&start=20181001&end=20181017`, function( data ) { 
-					callback(data);
-				})
+				const domain = 'http://localhost:5000'//'https://amp-robot.herokuapp.com'
+				const query = `${domain}/?from=${from}&to=${to}n&start=20181010&end=20181015`
+				
+				console.log(query)
+				
+				fetch(query).then(e => e.json()).then(e => callback(e, i))
 				
 			}
 			
@@ -499,6 +534,7 @@
 			window.APP = this;
 			
 			this.getToken();
+			
 			
 			window.addEventListener('click', e => {
 				if (e.target.nodeName === 'svg'){

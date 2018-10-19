@@ -242,6 +242,7 @@ export default {
 				.attr('class', 'nodetree')
 				.attr('data-name', d => d.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + d.id)
 				.attr('data-parent-name', d => source.data.name.replace('(loop)', '').trim().replace(/\s/g, '-').replace(/[\[\]\.]+/g, '_') + '_' + source.id)
+				.attr('data-id', d => d.id)
 				.attr('data-type', d => d.data.circle);
 			
       const allNodes = newNodes.merge(nodes);
@@ -299,6 +300,8 @@ export default {
       newNodes.attr('transform', d => translate(originBuilder(d), this.layout))
         .append('circle')
         .attr('r', this.radius / this.currentTransform.k );
+			
+			
 
       allNodes.classed('node__internal', d => hasChildren(d))
         .classed('node--leaf', d => !hasChildren(d))
@@ -315,8 +318,12 @@ export default {
         .attr('transform', d => translate(d, this.layout))
         .attr('opacity', 1));
 
-      const text = allNodes.select('.node_name').text(d => d.data[this.nodeText]);
-			const description = allNodes.select('.node_value').text(d => '');
+      const text = allNodes.select('.node_name').text(d => {
+				return d.data.name;//d.data[this.nodeText]
+			});
+			const description = allNodes.select('.node_value').text(d => {
+				return d.data.value || '';
+			});
 
       const {transformText} = this.layout
       allNodes.each((d,e) => {
@@ -468,7 +475,10 @@ export default {
 
       d._children = d.children
       d.children = null
-      this.$emit('retract', {element: d, data: d.data})
+      this.$emit('retract', {
+				element: d, 
+				data: d.data
+			})
       return this.updateIfNeeded(d, update)
     },
 
@@ -479,7 +489,10 @@ export default {
 
       d.children = d._children
       d._children = null
-      this.$emit('expand', {element: d, data: d.data})
+      this.$emit('expand', {
+				element: d, 
+				data: d.data
+			})
       return this.updateIfNeeded(d, update)
     },
 
@@ -649,6 +662,9 @@ export default {
   text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
 }
 	
+	.node_value {
+		font-weight: 700;
+	}	
 
 	
 
