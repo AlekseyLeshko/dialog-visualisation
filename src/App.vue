@@ -268,17 +268,17 @@
 						__this.state = 'loading';
 						__this.login.token = token;
 						__this.login.env = env;
-					/*
+					
             loadFromApi(env, token, function(e){
 									
 							__this.tree = e;
 							__this.state = 'viewer';
 									
 						});
-					*/
 					
-					this.tree = window.ddd; //for test
-					this.state = 'viewer';
+					
+					//this.tree = window.ddd; //for test
+					//this.state = 'viewer';
 					
 					
         } else {
