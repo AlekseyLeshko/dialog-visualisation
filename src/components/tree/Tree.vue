@@ -272,10 +272,18 @@ export default {
 				});
 			
 			newNodes.append('text')
-				.attr('class','node_value')	
-        .attr('dy', 20 / this.currentTransform.k)
+				.attr('class','node_value_in')	
+        .attr('dy', this.radius / this.currentTransform.k)
         .attr('x', 0)
-        .attr('dx', 0)
+        .attr('dx', -this.radius * 2)
+        .attr('transform', 'rotate(0)')
+				.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' ) 
+			
+			newNodes.append('text')
+				.attr('class','node_value_out')	
+        .attr('dy', this.radius / this.currentTransform.k)
+        .attr('x', 0)
+        .attr('dx', this.radius * 2)
         .attr('transform', 'rotate(0)')
 				.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' ) 
 
@@ -321,8 +329,15 @@ export default {
       const text = allNodes.select('.node_name').text(d => {
 				return d.data.name;//d.data[this.nodeText]
 			});
-			const description = allNodes.select('.node_value').text(d => {
-				return d.data.value || '';
+			
+			allNodes.select('.node_value_in').text(d => {
+				
+				return d.data.value_in || '';
+			});
+			
+			allNodes.select('.node_value_out').text(d => {
+				
+				return d.data.value_out || '';
 			});
 
       const {transformText} = this.layout
@@ -455,9 +470,13 @@ export default {
 					.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' )
 					.attr('dy', -10 / this.currentTransform.k)
 				
-				g.selectAll('.node_value')
+				g.selectAll('.node_value_in')
 					.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' )
-					.attr('dy', 20 / this.currentTransform.k)
+					.attr('dy', this.radius / this.currentTransform.k)
+				
+				g.selectAll('.node_value_out')
+					.attr('style', 'font-size:' + (this.fontSize / this.currentTransform.k) + 'px' )
+					.attr('dy', this.radius / this.currentTransform.k)
 				
 				g.selectAll('circle').attr('r', this.radius / this.currentTransform.k )
       }
@@ -662,11 +681,17 @@ export default {
   text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
 }
 	
-	.node_value {
+	.node_value_in, .node_value_out {
 		font-weight: 700;
 	}	
-
 	
+	.node_value_in {
+		text-anchor: end!important;
+	}
+	
+	.node_value_out {
+		text-anchor: start!important;
+	}
 
 .treeclass .linktree {
   fill: none;

@@ -426,13 +426,13 @@
 				this.dialog.visible = false;
 				
 				let from = e.data.name;
-				let from_elem = document.querySelector(`[data-id="${e.element.id}"] .node_value`);
+				let from_elem = document.querySelector(`[data-id="${e.element.id}"] .node_value_out`);
 				
 				let __this = this;
 			
 				
 				
-				
+				console.log(e)
 				
 				
 				if (from != 'Stage' && from != 'Main' && from != 'Orphaned' && from != 'Dialogflow Misc' && e.data.children && e.data.children.length ){
@@ -441,22 +441,23 @@
 						
 						this.loadAmplitude(e.data.name.replace('(loop)',''), e.data.children[i].name.replace('(loop)',''), i, function(result, g) {
 							
-							var to_elem = document.querySelector(`[data-id="${e.element.children[g].id}"] .node_value`);
+							var to_elem = document.querySelector(`[data-id="${e.element.children[g].id}"] .node_value_in`);
+							
 							
 							if (result.status === 'Success'){
 								 
 								from_elem.textContent = result.data.from.value;
-								to_elem.textContent = 'F ' + result.data.conversion.toFixed(1)//result.data.to.value;
+								to_elem.textContent = result.data.to.value;
 								
-								e.data.value = result.data.from.value; 
-								e.data.children[g].value = 'F ' + result.data.conversion.toFixed(1);
+								e.data.value_out = result.data.from.value + ''; 
+								e.data.children[g].value_in = result.data.to.value + '';
 								
 							} else {
 								from_elem.textContent = '—';
 								to_elem.textContent = '—'//result.data.to.value;
 								
-								e.data.value = '—'; 
-								e.data.children[g].value = '—';
+								e.data.value_out = '—'; 
+								e.data.children[g].value_in = '—';
 							}
 						
 						});
