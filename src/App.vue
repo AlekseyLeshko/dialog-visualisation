@@ -123,6 +123,7 @@
 
 	import platform 				from 'platform';
 	import {compareString, anchorTodx, drawLink, toPromise, findInParents, mapMany, translate} from '../src/components/tree/d3-utils';
+	import dateTime					from '../src/functions/date-time.js';
 
 	import tree 						from '../src/components/tree/Tree.vue';
 	import checkbox 				from '../src/components/checkbox/checkbox.vue';
@@ -276,7 +277,7 @@
 									
 						});
 					
-					
+	
 					//this.tree = window.ddd; //for test
 					//this.state = 'viewer';
 					
@@ -520,7 +521,7 @@
 			loadAmplitude: function(from, to, i, callback){
 				
 				const domain = 'http://localhost:5000'//'https://amp-robot.herokuapp.com'
-				const query = `${domain}/?from=${from}&to=${to}n&start=20181010&end=20181015`
+				const query = `${domain}/?from=${from}&to=${to}&start=20181010&end=${dateTime().val}`
 				
 				console.log(query)
 				
