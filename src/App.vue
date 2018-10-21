@@ -520,7 +520,7 @@
 			
 			loadAmplitude: function(from, to, i, callback){
 				
-				const domain = 'http://localhost:5000'//'https://amp-robot.herokuapp.com'
+				const domain = 'https://amp-robot.herokuapp.com' //'http://localhost:5000'
 				const query = `${domain}/?from=${from}&to=${to}&start=20181010&end=${dateTime().val}`
 				
 				console.log(query)
