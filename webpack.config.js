@@ -1,17 +1,26 @@
 var path = require('path');
 var webpack = require('webpack');
 var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-
+const rootPath = path.resolve(__dirname, './')
+const srcPath = path.resolve(rootPath, './src')
+const bundleDir = path.resolve(rootPath, 'dist/')
+const staticPath = path.resolve(rootPath, 'static')
 
 module.exports = {
 	entry: './src/main.js',
 	output: {
-		path: path.resolve(__dirname, './dist'),
-		publicPath: '/dist/',
-		filename: 'build.js'
+		path: bundleDir,
+    publicPath: '/',
+		filename: 'build-[hash].js'
 	},
 	plugins: [
+    new HtmlWebpackPlugin({
+      template: path.join(srcPath, './template.ejs'),
+      inject: 'body',
+    }),
 
   	new UglifyJsPlugin({
 			test: /\.js($|\?)/i,
@@ -154,6 +163,10 @@ if (process.env.NODE_ENV === 'production') {
 
     new webpack.LoaderOptionsPlugin({
 			minimize: true
-		})
+    }),
+    new CopyWebpackPlugin([
+      path.resolve(rootPath, './data/*'),
+      path.resolve(staticPath, '**/*'),
+    ]),
   ])
 }
