@@ -14,9 +14,10 @@
     "styleguide:build": "vue-styleguidist build"
   },
   "dependencies": {
+    "copy-webpack-plugin": "^4.5.4",
+    "d3": "^4.10.2",
     "vue": "^2.5.11",
-		"d3": "^4.10.2",
-		"vue-resize-directive": "^1.1.4"
+    "vue-resize-directive": "^1.1.4"
   },
   "browserslist": [
     "> 1%",
